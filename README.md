@@ -17,7 +17,7 @@ A valid Satellite 6 subscription on access.redhat.com
 Run the playbook as follows:
 
 ```
-ansible-playbook -i hosts satellite62-install.yaml --extra-vars ""
+ansible-playbook -i hosts capmove.yaml
 ```
 
 ## Built With
