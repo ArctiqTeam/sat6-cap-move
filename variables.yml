@@ -1,0 +1,11 @@
+---
+#All variables for the playbook are here.  Please change accordingly
+admin_user: "admin"
+admin_passwd: "redhat"
+satellite_org_id: "1"
+# The puppet environment should be set to the environment where the managed host belongs.  This is fed into the puppet.conf template
+puppet_environment: "production"
+client_system: "test1.cloud.lab"
+satellite_server: "satellite62-ga.cloud.lab"
+source_capsule: "capsule01.cloud.lab"
+destination_capsule: "satellite62-ga.cloud.lab"

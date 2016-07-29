@@ -1,0 +1,38 @@
+---
+# First we need to go and remove the host as a content host in Satellite registered under the capsule where it was provisioned and remove the CA
+- name: Remove client system from Satellite
+  hosts: client
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Subscription Manager remove
+      command: /usr/bin/subscription-manager remove --all
+      ignore_errors: yes
+    - name: Subscription Manager unregister
+      command: /usr/bin/subscription-manager unregister
+      ignore_errors: yes
+    - name: Subscription Manager clean
+      command: /usr/bin/subscription-manager clean
+      ignore_errors: yes
+    - name: Remove Katello CA
+      yum: name=katello* state=absent
+    - name: Stop Puppet
+      service: name=puppet state=stopped
+    - name: Remove Puppet Config file
+      file: path=/etc/puppet/puppet.conf state=absent
+    - name: Remove Puppet SSL Config files
+      file: path=/var/lib/puppet/ssl state=absent
+    - name: Replace Puppet Config file with new one
+      template: src=templates/puppet.conf.j2 dest=/etc/puppet/puppet.conf
+
+
+# Need to now do a dis-associate to remove the association to the VMhost underneath
+# Should be able to do an API call to Satellite with the following:
+#     PUT /api/hosts/:id/disassociate
+#  Need to get the host ID from the Satellite environment
+
+# hammer host list --organization-id 1
+
+- name: Delete the managed host
+# hammer host delete --name test-prov.cloud.lab --organization Arctiq
