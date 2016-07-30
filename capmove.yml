@@ -1,6 +1,6 @@
 ---
 # First we need to go and remove the host as a content host in Satellite registered under the capsule where it was provisioned and remove the CA
-- name: Remove client system from Satellite
+- name: Perform client-side work
   hosts: client
   vars_files:
     - variables.yml
@@ -26,13 +26,78 @@
     - name: Replace Puppet Config file with new one
       template: src=templates/puppet.conf.j2 dest=/etc/puppet/puppet.conf
 
+- name: Perform satellite-side work
+  hosts: satellite
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Get the current host ID
+      become: yes
+      # Need to modify this to get just the correct host ID
+      shell: hammer host list --organization-id {{ satellite_org_id }}
+      register: current_host_id
+      ignore_errors: yes
+    - name: Disassociate the host from VMware
+      uri:
+        url: https://{{ satellite_server }}/api/hosts/{{ current_host_id }}/disassociate
+        method: PUT
+        user: admin_user
+        password: admin_passwd
+    - name: Delete the current host from Satellite
+      become: yes
+      shell: hammer host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
+      ignore_errors: yes
 
-# Need to now do a dis-associate to remove the association to the VMhost underneath
-# Should be able to do an API call to Satellite with the following:
-#     PUT /api/hosts/:id/disassociate
-#  Need to get the host ID from the Satellite environment
+- name: Re-register the client system under the new capsule
+  hosts: client
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Install the new Katello CA
+      yum: name=http://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm state=latest
+    - name: Register the system again with Satellite with the NEW activation key
+      command: /usr/bin/subscription-manager register --org="{{ satellite_org }}" --activationkey={{ new_activation_key }}
+      ignore_errors: yes
 
-# hammer host list --organization-id 1
+- name: Add the new host to the autosign configuration
+  hosts: destination_capsule
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Add the host to autosign.conf
+      lineinfile: dest=/etc/puppet/autosign.conf line="{{ client_system }}"
 
-- name: Delete the managed host
-# hammer host delete --name test-prov.cloud.lab --organization Arctiq
+- name: Run and re-enable Puppet on the client system
+  hosts: client
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: test run of Puppet
+      become: yes
+      shell: puppet agent -t
+      ignore_errors: yes
+    - name: re-enable Puppet
+      service: name=puppet state=started
+
+- name: Change the location and org for the new host
+  hosts: satellite
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Get the new host ID
+      become: yes
+      # Need to modify this to get just the correct host ID
+      shell: hammer host list --organization-id {{ satellite_org_id }}
+      register: new_host_id
+      ignore_errors: yes
+    - name: Assign the host accordingly
+      become: yes
+      shell: hammer host update --id {{ new_host_id }} --location-id {{ satellite_loc_id }} --organization-id {{ satellite_org_id }}
+      ignore_errors: yes
+
+# Host should now be completely moved over to the destination capsule
