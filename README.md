@@ -10,6 +10,7 @@ Currently the workflow is shipped as an Ansible playbook.  Simply clone the repo
 
 Ansible control system with SSH access to the Satellite 6.2 Target
 Environment with multiple capsule servers (included the embedded Capsule in Satellite itself)
+Modify the variables.yml file accordingly
 A valid Satellite 6 subscription on access.redhat.com
 
 ### Running the playbook
@@ -23,6 +24,7 @@ ansible-playbook -i hosts capmove.yaml
 ## Built With
 
 * Ansible
+* Direct root SSH access to all systems involved
 * Hammer CLI for Satellite configuration
 
 ## Authors
