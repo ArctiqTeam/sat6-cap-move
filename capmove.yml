@@ -5,6 +5,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - client_side_remove
   tasks:
     - name: Subscription Manager remove
       command: /usr/bin/subscription-manager remove --all
@@ -31,6 +33,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - satellite_side_remove
   tasks:
     - name: Get the current host ID
       become: yes
@@ -54,6 +58,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - rereg
   tasks:
     - name: Install the new Katello CA
       yum: name=http://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm state=latest
@@ -66,6 +72,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - autosign
   tasks:
     - name: Add the host to autosign.conf
       lineinfile: dest=/etc/puppet/autosign.conf line="{{ client_system }}"
@@ -75,6 +83,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - puppet_reenable
   tasks:
     - name: test run of Puppet
       become: yes
@@ -88,6 +98,8 @@
   vars_files:
     - variables.yml
   remote_user: root
+  tags:
+    - location_assign
   tasks:
     - name: Get the new host ID
       become: yes
