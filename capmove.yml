@@ -66,6 +66,8 @@
     - name: Register the system again with Satellite with the NEW activation key
       command: /usr/bin/subscription-manager register --org="{{ satellite_org }}" --activationkey={{ new_activation_key }}
       ignore_errors: yes
+    - name: Install Katello
+      yum: name=katello-agent state=latest
 
 - name: Add the new host to the autosign configuration
   hosts: destination_capsule
