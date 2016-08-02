@@ -47,6 +47,8 @@
         method: PUT
         user: admin_user
         password: admin_passwd
+        force_basic_auth: yes
+        validate_certs: no
     - name: Delete the current host from Satellite
       become: yes
       shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
