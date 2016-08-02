@@ -47,6 +47,7 @@
         method: PUT
         user: "{{ admin_user }}"
         password: "{{ admin_passwd }}"
+        Content-Type: application/json
         force_basic_auth: yes
         validate_certs: no
     - name: Delete the current host from Satellite
