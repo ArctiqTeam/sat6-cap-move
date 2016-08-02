@@ -42,15 +42,15 @@
       register: current_host_id
       ignore_errors: yes
     - name: Disassociate the host from VMware
-      shell: "curl -X PUT -s -k -u {{ admin_user }}:{{ admin_passwd }} https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate"
-#      uri:
-#        url: "https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate"
-#        method: PUT
-#        user: "{{ admin_user }}"
-#        password: "{{ admin_passwd }}"
-#        HEADER_Content-Type: "application/json"
-#        force_basic_auth: yes
-#        validate_certs: no
+#      shell: "curl -X PUT -s -k -u {{ admin_user }}:{{ admin_passwd }} https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate"
+      uri:
+        url: "https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate"
+        method: PUT
+        user: "{{ admin_user }}"
+        password: "{{ admin_passwd }}"
+        HEADER_Content-Type: "application/json"
+        force_basic_auth: yes
+        validate_certs: no
     - name: Delete the current host from Satellite
       become: yes
       shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
