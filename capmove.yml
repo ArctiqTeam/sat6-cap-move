@@ -43,7 +43,7 @@
       ignore_errors: yes
     - name: Disassociate the host from VMware
       uri:
-        url: https://{{ satellite_server }}/api/hosts/{{ current_host_id.stdout }}/disassociate
+        url: https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate
         method: PUT
         user: admin_user
         password: admin_passwd
