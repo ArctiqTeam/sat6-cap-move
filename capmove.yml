@@ -38,19 +38,18 @@
   tasks:
     - name: Get the current host ID
       become: yes
-      # Need to modify this to get just the correct host ID
-      shell: hammer host list --organization-id {{ satellite_org_id }}
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list --organization-id {{ satellite_org_id }} | awk '/{{ client_system }}/ {print $1}'
       register: current_host_id
       ignore_errors: yes
     - name: Disassociate the host from VMware
       uri:
-        url: https://{{ satellite_server }}/api/hosts/{{ current_host_id }}/disassociate
+        url: https://{{ satellite_server }}/api/hosts/{{ current_host_id.stdout }}/disassociate
         method: PUT
         user: admin_user
         password: admin_passwd
     - name: Delete the current host from Satellite
       become: yes
-      shell: hammer host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
       ignore_errors: yes
 
 - name: Re-register the client system under the new capsule
@@ -62,9 +61,9 @@
     - rereg
   tasks:
     - name: Install the new Katello CA
-      yum: name=http://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm state=latest
+      yum: name=http://{{ destination_capsule }}/pub/katello-ca-consumer-latest.noarch.rpm state=present
     - name: Register the system again with Satellite with the NEW activation key
-      command: /usr/bin/subscription-manager register --org="{{ satellite_org }}" --activationkey={{ new_activation_key }}
+      command: /usr/bin/subscription-manager register --org="{{ satellite_org }}" --activationkey="{{ new_activation_key }}"
       ignore_errors: yes
     - name: Install Katello
       yum: name=katello-agent state=latest
@@ -106,12 +105,12 @@
     - name: Get the new host ID
       become: yes
       # Need to modify this to get just the correct host ID
-      shell: hammer host list --organization-id {{ satellite_org_id }}
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list --organization-id {{ satellite_org_id }} | awk '/{{ client_system }}/ {print $1}'
       register: new_host_id
       ignore_errors: yes
     - name: Assign the host accordingly
       become: yes
-      shell: hammer host update --id {{ new_host_id }} --location-id {{ satellite_loc_id }} --organization-id {{ satellite_org_id }}
+      shell: hammer host update --id {{ new_host_id.stdout }} --location-id {{ satellite_loc_id }} --organization-id {{ satellite_org_id }}
       ignore_errors: yes
 
 # Host should now be completely moved over to the destination capsule
