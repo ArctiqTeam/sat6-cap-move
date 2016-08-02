@@ -45,8 +45,8 @@
       uri:
         url: https://{{ satellite_server }}/api/v2/hosts/{{ current_host_id.stdout }}/disassociate
         method: PUT
-        user: {{ admin_user }}
-        password: {{ admin_passwd }}
+        user: "{{ admin_user }}"
+        password: "{{ admin_passwd }}"
         force_basic_auth: yes
         validate_certs: no
     - name: Delete the current host from Satellite
