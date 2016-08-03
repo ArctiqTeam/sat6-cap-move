@@ -6,7 +6,7 @@ satellite_org: "Arctiq"
 satellite_org_id: "1"
 satellite_loc_id: "2"
 # This should be the activation key associated with the configuration details for the new host capsule
-new_activation_key: "new-rhel7-dev"
+new_activation_key: "new-dev-core"
 # The puppet environment should be set to the environment where the managed host belongs.  This is fed into the puppet.conf template
 puppet_environment: "production"
 client_system: "test1.cloud.lab"

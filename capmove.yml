@@ -10,13 +10,10 @@
   tasks:
     - name: Subscription Manager remove
       command: /usr/bin/subscription-manager remove --all
-      ignore_errors: yes
     - name: Subscription Manager unregister
       command: /usr/bin/subscription-manager unregister
-      ignore_errors: yes
     - name: Subscription Manager clean
       command: /usr/bin/subscription-manager clean
-      ignore_errors: yes
     - name: Remove Katello CA
       yum: name=katello* state=absent
     - name: Stop Puppet
@@ -97,6 +94,15 @@
       ignore_errors: yes
     - name: re-enable Puppet
       service: name=puppet state=started
+
+- name: Remove the new host to the autosign configuration
+  hosts: destination_capsule
+  vars_files:
+    - variables.yml
+  remote_user: root
+  tasks:
+    - name: Remove the host from autosign.conf
+      lineinfile: dest=/etc/puppet/autosign.conf state=absent line="{{ client_system }}"
 
 - name: Change the location and org for the new host
   hosts: satellite
