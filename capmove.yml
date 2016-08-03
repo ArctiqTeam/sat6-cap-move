@@ -38,7 +38,7 @@
   tasks:
     - name: Get the current host ID
       become: yes
-      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list --organization-id {{ satellite_org_id }} | awk '/{{ client_system }}/ {print $1}'
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list | awk '/{{ client_system }}/ {print $1}'
       register: current_host_id
       ignore_errors: yes
     - name: Disassociate the host from VMware
@@ -53,7 +53,7 @@
         validate_certs: no
     - name: Delete the current host from Satellite
       become: yes
-      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host delete --name {{ client_system }} --organization-id {{ satellite_org_id }}
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host delete --id {{ current_host_id.stdout }}
       ignore_errors: yes
 
 - name: Re-register the client system under the new capsule
@@ -109,7 +109,7 @@
     - name: Get the new host ID
       become: yes
       # Need to modify this to get just the correct host ID
-      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list --organization-id {{ satellite_org_id }} | awk '/{{ client_system }}/ {print $1}'
+      shell: hammer --username {{ admin_user }} --password {{ admin_passwd }} host list | awk '/{{ client_system }}/ {print $1}'
       register: new_host_id
       ignore_errors: yes
     - name: Assign the host accordingly
