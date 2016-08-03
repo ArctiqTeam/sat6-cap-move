@@ -81,6 +81,8 @@
   tasks:
     - name: Add the host to autosign.conf
       lineinfile: dest=/etc/puppet/autosign.conf line="{{ client_system }}"
+    - name: Reset puppet cert
+      command: puppet cert clean {{ client_system }}
 
 - name: Run and re-enable Puppet on the client system
   hosts: client
