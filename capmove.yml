@@ -65,7 +65,8 @@
       yum: name=http://{{ destination_capsule }}/pub/katello-ca-consumer-latest.noarch.rpm state=present
     - name: Register the system again with Satellite with the NEW activation key
       command: /usr/bin/subscription-manager register --org="{{ satellite_org }}" --activationkey="{{ new_activation_key }}"
-      ignore_errors: yes
+    - name: Enable repos
+      command: /usr/bin/subscription-manager repos --enable rhel-7-server-rpms --enable rhel-7-server-satellite-tools-6.2-rpms
     - name: Install Katello
       yum: name=katello-agent state=latest
 
